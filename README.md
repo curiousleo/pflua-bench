@@ -10,12 +10,12 @@ pflang implementations:
 * _linux-bpf_: The old Linux kernel-space [BPF
    compiler](http://lwn.net/Articles/437981/) from 2011.  We have
    adapted this library to work as a loadable user-space module
-   ([source](https://github.com/Igalia/pflua-bench/tree/terra/linux-bpf-jit)).
+   ([source](https://github.com/curiousleo/pflua-bench/tree/terra/linux-bpf-jit)).
 
 * _linux-ebpf_: The new Linux kernel-space [BPF
    compiler](http://lwn.net/Articles/599755/) from 2014, also adapted to
    user-space
-   ([source](https://github.com/Igalia/pflua-bench/tree/terra/linux-ebpf-jit)).
+   ([source](https://github.com/curiousleo/pflua-bench/tree/terra/linux-ebpf-jit)).
 
 * _bpf_: BPF bytecodes, cross-compiled to Lua by pflua.
 
@@ -69,9 +69,9 @@ The bar itself marks the median.
 
 ### One gigabyte: 1.1M kilobytes of zeroes
 
-![Summary](https://raw.githubusercontent.com/Igalia/pflua-bench/terra/results/1gb-1kb-tcp-port-5555/1gb-1kb-tcp-port-5555.png)
+![Summary](https://raw.githubusercontent.com/curiousleo/pflua-bench/terra/results/1gb-1kb-tcp-port-5555/1gb-1kb-tcp-port-5555.png)
 
-[Raw results.](https://github.com/Igalia/pflua-bench/tree/terra/results/1gb-1kb-tcp-port-5555)
+[Raw results.](https://github.com/curiousleo/pflua-bench/tree/terra/results/1gb-1kb-tcp-port-5555)
 
 The throughput is ultimately bottlenecked by memory bandwidth, but this
 a useful test to check if filter overhead is significant when compared
@@ -83,9 +83,9 @@ this machine's memory bandwidth.  Some squirreliness is expected.
 
 ### Ping flood: 1M ping packets
 
-![Summary](https://raw.githubusercontent.com/Igalia/pflua-bench/terra/results/ping-flood/ping-flood.png)
+![Summary](https://raw.githubusercontent.com/curiousleo/pflua-bench/terra/results/ping-flood/ping-flood.png)
 
-[Raw results.](https://github.com/Igalia/pflua-bench/tree/terra/results/ping-flood)
+[Raw results.](https://github.com/curiousleo/pflua-bench/tree/terra/results/ping-flood)
 
 These results are great!  To compare to the previous example, 180 MPPS
 for this file is also about 100 Gbit/s.  Recall that this is a streaming
@@ -99,9 +99,9 @@ workload at about 6 nanoseconds per packet.
 
 ### Web server: 20K packets from `wingolog.org`
 
-![Summary](https://raw.githubusercontent.com/Igalia/pflua-bench/terra/results/wingolog.org-1/wingolog.org-1.png)
+![Summary](https://raw.githubusercontent.com/curiousleo/pflua-bench/terra/results/wingolog.org-1/wingolog.org-1.png)
 
-[Raw results.](https://github.com/Igalia/pflua-bench/tree/terra/results/wingolog.org-1)
+[Raw results.](https://github.com/curiousleo/pflua-bench/tree/terra/results/wingolog.org-1)
 
 Here we have a more realistic scenario, as it's actual real-world
 traffic rather than a synthetic test.  We see good results for pflua.
@@ -112,16 +112,16 @@ The results above are the good results, but they're not great; in
 particular, we don't see any reason for `tcp src port 80` to be so slow.
 It gets stranger, though:
 
-![Summary](https://raw.githubusercontent.com/Igalia/pflua-bench/terra/results/wingolog.org-2/wingolog.org-2.png)
+![Summary](https://raw.githubusercontent.com/curiousleo/pflua-bench/terra/results/wingolog.org-2/wingolog.org-2.png)
 
-[Raw results.](https://github.com/Igalia/pflua-bench/tree/terra/results/wingolog.org-2)
+[Raw results.](https://github.com/curiousleo/pflua-bench/tree/terra/results/wingolog.org-2)
 
 Here the tests are paired.  The first test of a pair, for example the
 leftmost `portrange 0-6000`, will match most packets.  The second test
 of a pair, for example the second-from-the-left `portrange 0-5`, will
 reject all packets.  The generated Lua code will be very similar, except
 for some constants being different.  See
-https://github.com/Igalia/pflua/blob/terra/doc/portrange-0-6000.md for
+https://github.com/curiousleo/pflua/blob/terra/doc/portrange-0-6000.md for
 an example.
 
 However the pflua performance of these filters is very different: the
@@ -136,10 +136,10 @@ this is a LuaJIT issue.  What we see from the `-jv -jdump` output is that
 the first trace that goes through does end up residualizing a tight
 loop, after hoisting a bunch of dynamic checks up before the loop (see
 [trace
-66](https://github.com/Igalia/pflua-bench/blob/terra/results/wingolog.org-2/trace.md#66-inner-loop)),
+66](https://github.com/curiousleo/pflua-bench/blob/terra/results/wingolog.org-2/trace.md#66-inner-loop)),
 but that subsequent variations get compiled to traces that have a fairly
 large state transfer penalty ([trace
-67](https://github.com/Igalia/pflua-bench/blob/terra/results/wingolog.org-2/trace.md#67-second-port-test))
+67](https://github.com/curiousleo/pflua-bench/blob/terra/results/wingolog.org-2/trace.md#67-second-port-test))
 and which don't jump to the top of the loop -- they jump to the top of
 the trace with the loop, which then has to do a bunch of useless work.
 
