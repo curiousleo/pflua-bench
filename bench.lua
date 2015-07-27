@@ -8,6 +8,7 @@ end
 local dot = dirname(arg[0])
 
 package.path = package.path .. ";" .. dot .. "/deps/pflua/src/?.lua"
+package.terrapath = package.terrapath .. ";" .. dot .. "/deps/pflua/src/?.t"
 
 local ffi = require("ffi")
 local pf = require("pf")
@@ -56,6 +57,9 @@ local compilers = {
    end,
    ["bpf-lua"] = function (filter)
       return pf.compile_filter(filter, {bpf=true})
+   end,
+   pfterra = function(filter)
+      return pf.compile_filter(filter, {pfterra=true})
    end,
    pflua = function (filter)
       return pf.compile_filter(filter)
